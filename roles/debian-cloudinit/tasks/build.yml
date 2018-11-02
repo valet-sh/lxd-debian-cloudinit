@@ -1,0 +1,111 @@
+---
+
+- name: create temporary build directory
+  tempfile:
+    state: directory
+  register: tmp_directory_obj
+
+- name: create image target directory
+  file:
+    path: "{{ tmp_directory_obj.path }}/target"
+    state: directory
+    mode: 0755
+
+- name: check for lxd unix socket
+  set_fact:
+    lxd_unix_socket: "{{ item }}"
+  with_first_found:
+    - "/var/lib/lxd/unix.socket"
+    - "/var/snap/lxd/common/lxd/unix.socket"
+
+- name: "ensure container for {{ container_name }} is created and running"
+  lxd_container:
+    name: "{{ container_name }}"
+    state: started
+    source:
+      type: image
+      mode: pull
+      server: https://images.linuxcontainers.org
+      protocol: simplestreams
+      alias: "{{ base_image }}"
+    url: "unix:{{ lxd_unix_socket }}"
+    wait_for_ipv4_addresses: true
+    timeout: 600
+
+- name: install cloud-init package in container
+  shell: "lxc exec {{ container_name }} -- apt install -y cloud-init"
+
+- name: "stop container {{ container_name }}"
+  lxd_container:
+    name: "{{ container_name }}"
+    url: "unix:{{ lxd_unix_socket }}"
+    force_stop: true
+    state: stopped
+
+- name: "publish image of container {{ container_name }} "
+  shell: "lxc publish {{ container_name }} --alias {{ container_image_name }}"
+
+- name: "publish image of container {{ container_name }} "
+  shell: "lxc image export {{ container_image_name }} {{ tmp_directory_obj.path }}/image"
+
+- name: "delete image {{ container_image_name }} from repository"
+  shell: "lxc image delete {{ container_image_name }}"
+
+- name: Unarchive a file that is already on the remote machine
+  unarchive:
+    src: "{{ tmp_directory_obj.path }}/image.tar.gz"
+    dest: "{{ tmp_directory_obj.path }}/target/"
+    remote_src: yes
+  become: true
+
+- name: deploy metadata template
+  template:
+    src: metadata.yaml.j2
+    dest: "{{ tmp_directory_obj.path }}/target/metadata.yaml"
+
+- name: clean old template files
+  file:
+    path: "{{ tmp_directory_obj.path }}/target/templates"
+    state: absent
+  become: true
+
+- name: create new template folder
+  file:
+    path: "{{ tmp_directory_obj.path }}/target/templates"
+    state: directory
+
+- name: copy tempate files
+  copy:
+    src: "{{ item }}"
+    dest: "{{ tmp_directory_obj.path }}/target/templates"
+  with_fileglob:
+  - files/templates/*
+
+- name: "Compress directory {{ tmp_directory_obj.path }}/target/* into {{ tmp_directory_obj.path }}/modified-image.tar.gz"
+  shell: "tar czf {{ tmp_directory_obj.path }}/modified-image.tar.gz *"
+  args:
+    chdir: "{{ tmp_directory_obj.path }}/target/"
+  become: true
+
+- name: "get stats for {{ tmp_directory_obj.path }}/modified-image.tar.gz"
+  stat:
+    path: "{{ tmp_directory_obj.path }}/modified-image.tar.gz"
+    checksum_algorithm: sha256
+  register: modified_image_stat_obj
+
+- name: "create temporary image directory"
+  tempfile:
+    state: directory
+  register: tmp_image_dir_obj
+
+- name: "Rename and move image to {{ tmp_image_dir_obj.path }}/{{ modified_image_stat_obj.stat.checksum }}.tar.gz"
+  copy:
+    remote_src: True
+    src: "{{ tmp_directory_obj.path }}/modified-image.tar.gz"
+    dest: "{{ tmp_image_dir_obj.path }}/{{ modified_image_stat_obj.stat.checksum }}.tar.gz"
+
+- name: "Remove delete tmp_directory"
+  file:
+    path: "{{ tmp_directory_obj.path }}"
+    state: absent
+  become: true

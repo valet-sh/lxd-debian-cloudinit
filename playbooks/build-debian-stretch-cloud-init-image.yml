@@ -1,0 +1,14 @@
+---
+
+- hosts: localhost
+  gather_facts: true
+  vars:
+    base_image: "debian/stretch/amd64"
+    container_name: "debian-cloudinit"
+    container_image_name: "debian-stretch-cloudinit-image"
+    lxd_image_creation_date: "{{ ansible_date_time.epoch }}"
+    lxd_image_description: "Debian stretch amd64 with cloud-init support"
+    target_os_release: "stretch"
+    target_os: "debian"
+  roles:
+    - debian-cloudinit

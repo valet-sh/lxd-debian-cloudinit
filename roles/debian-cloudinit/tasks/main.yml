@@ -1,0 +1,4 @@
+---
+
+# required vars: base_image, container_name,
+- include_tasks: build.yml

@@ -1,0 +1,41 @@
+architecture: "x86_64"
+creation_date: {{ lxd_image_creation_date }}
+properties:
+    architecture: "x86_64"
+    description: "{{ lxd_image_description }}"
+    os: "{{ target_os }}"
+    release: "{{ target_os_release }}"
+templates:
+    /etc/hostname:
+        when:
+            - create
+            - copy
+        template: hostname.tpl
+    /var/lib/cloud/seed/nocloud-net/meta-data:
+        when:
+            - create
+            - copy
+        template: cloud-init-meta.tpl
+    /var/lib/cloud/seed/nocloud-net/network-config:
+        when:
+            - create
+            - copy
+        template: cloud-init-network.tpl
+    /var/lib/cloud/seed/nocloud-net/user-data:
+        when:
+            - create
+            - copy
+        template: cloud-init-user.tpl
+        properties:
+            default: |
+                #cloud-config
+                {}
+    /var/lib/cloud/seed/nocloud-net/vendor-data:
+        when:
+            - create
+            - copy
+        template: cloud-init-vendor.tpl
+        properties:
+            default: |
+                #cloud-config
+                {}
