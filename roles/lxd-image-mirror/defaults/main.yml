@@ -1,0 +1,10 @@
+letsencrypt_path: /var/www/letsencrypt
+letsencrypt_email: certs@valet.sh
+
+letsencrypt_is_dry_run: false
+
+letsencrypt_google_dns_credentials_file: "/root/.google-dns.json"
+
+nginx_dhparams_file: /etc/nginx/dhparam.pem
+nginx_dhparams_keysize: 2048
+nginx_webroot: "/var/www/{{ valet_lxd_repository_domain }}"

@@ -1,0 +1,29 @@
+---
+
+- name: ensure python-pip package is installed
+  apt:
+    name: python-pip
+    state: present
+
+- name: install certbot via pip
+  shell: "pip install --upgrade  {{ item }}"
+  with_items:
+  - cryptography
+  - certbot
+  - certbot-dns-google
+  - idna==2.6
+
+- name: ensure nginx is installed
+  apt:
+    name: ssl-cert
+    state: present
+
+- name: ensure nginx is installed
+  apt:
+    name: nginx
+    state: present
+
+- name: ensure nginx is enabled
+  systemd:
+    name: nginx
+    enabled: yes

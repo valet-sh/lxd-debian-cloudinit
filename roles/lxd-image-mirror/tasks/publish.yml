@@ -1,0 +1,23 @@
+---
+
+- name: "ensure location /{{ valet_lxd_image_identifier }} exists"
+  file:
+    path: "{{ nginx_webroot }}/{{ valet_lxd_image_identifier }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: copy image file to destination
+  copy:
+    src: "{{ valet_lxd_image_file }}"
+    dest: "{{ nginx_webroot }}/{{ valet_lxd_image_identifier }}/"
+
+- name: ensure lxd-location configuration is up2date
+  template:
+    src: lxd-location.conf.j2
+    dest: "/etc/nginx/lxd.d/{{ valet_lxd_image_identifier }}.conf"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: systemd | nginx | reloaded

@@ -1,0 +1,4 @@
+location /{{ valet_lxd_image_identifier }} {
+add_header LXD-Image-Hash {{ valet_lxd_image_hash }};
+add_header LXD-Image-URL https://{{ valet_lxd_repository_domain }}/{{ valet_lxd_image_identifier }}/{{ valet_lxd_image_filename }};
+}

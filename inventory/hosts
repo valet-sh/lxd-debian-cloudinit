@@ -1,1 +1,1 @@
-lxd.valet.sh
+valet-lxd-mirror ansible_host=lxd.valet.sh ansible_user=valet-admin

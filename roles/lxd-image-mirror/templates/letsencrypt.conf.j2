@@ -1,0 +1,6 @@
+location /.well-known {
+    allow all;
+    auth_basic off;
+    default_type "text/plain";
+    root {{ letsencrypt_path }};
+}

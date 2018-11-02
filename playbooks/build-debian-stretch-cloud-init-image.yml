@@ -12,3 +12,20 @@
     target_os: "debian"
   roles:
     - debian-cloudinit
+
+- hosts: valet-lxd-mirror
+  gather_facts: false
+  roles:
+    - python2
+
+- hosts: valet-lxd-mirror
+  gather_facts: true
+  become: true
+  vars:
+    valet_lxd_image_hash: "{{ hostvars.localhost.modified_image_stat_obj.stat.checksum }}"
+    valet_lxd_image_filename: "{{ hostvars.localhost.modified_image_stat_obj.stat.checksum }}.tar.gz"
+    valet_lxd_image_file: "{{ hostvars.localhost.tmp_image_dir_obj.path }}/{{ hostvars.localhost.modified_image_stat_obj.stat.checksum }}.tar.gz"
+    valet_lxd_image_identifier: debian-stretch-cloud-init
+  roles:
+    - lxd-image-mirror
+

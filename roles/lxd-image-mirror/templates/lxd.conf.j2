@@ -1,0 +1,32 @@
+server {
+    listen 80 default;
+
+    include /etc/nginx/snippets/letsencrypt.conf;
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2 default;
+
+    location / {
+        return 301 https://{{ valet_lxd_repository_domain }}$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+
+    server_name {{ valet_lxd_repository_domain }};
+
+    root {{ nginx_webroot }};
+
+    add_header Strict-Transport-Security max-age=15768000;
+
+    include /etc/nginx/lxd.d/*.conf;
+
+    location / {
+    }
+}

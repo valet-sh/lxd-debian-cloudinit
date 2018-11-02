@@ -1,0 +1,19 @@
+---
+
+base_packages:
+  - vim
+  - less
+  - rsync
+  - curl
+  - wget
+  - htop
+  - iotop
+  - aptitude
+  - git
+  - sudo
+  - unzip
+  - rsyslog
+  - acl
+  - apt-transport-https
+
+timezone: Europe/Berlin
