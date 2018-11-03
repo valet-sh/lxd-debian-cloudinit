@@ -1,5 +1,10 @@
 ---
 
+- name: "ensure location /{{ valet_lxd_image_identifier }} is empty"
+  file:
+    path: "{{ nginx_webroot }}/{{ valet_lxd_image_identifier }}"
+    state: absent
+
 - name: "ensure location /{{ valet_lxd_image_identifier }} exists"
   file:
     path: "{{ nginx_webroot }}/{{ valet_lxd_image_identifier }}"

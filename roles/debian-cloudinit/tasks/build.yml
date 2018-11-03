@@ -33,7 +33,7 @@
     timeout: 600
 
 - name: install cloud-init package in container
-  shell: "lxc exec {{ container_name }} -- apt install -y cloud-init"
+  shell: "lxc exec {{ container_name }} -- apt install -y cloud-init cloud-initramfs-dyn-netconf ssh"
 
 - name: "stop container {{ container_name }}"
   lxd_container:
@@ -104,13 +104,7 @@
     src: "{{ tmp_directory_obj.path }}/modified-image.tar.gz"
     dest: "{{ tmp_image_dir_obj.path }}/{{ modified_image_stat_obj.stat.checksum }}.tar.gz"
 
-- name: set variables
-  set_fact:
-    valet_lxd_image_hash: "{{ modified_image_stat_obj.stat.checksum }}"
-    valet_lxd_image_filename: "{{ modified_image_stat_obj.stat.checksum }}.tar.gz"
-    valet_lxd_image_file: "{{ tmp_image_dir_obj.path }}/{{ modified_image_stat_obj.stat.checksum }}.tar.gz"
-
-- name: "Remove delete tmp_directory"
+- name: "delete temporary directory {{ tmp_directory_obj.path }}"
   file:
     path: "{{ tmp_directory_obj.path }}"
     state: absent
