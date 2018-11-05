@@ -33,7 +33,7 @@
     timeout: 600
 
 - name: install cloud-init package in container
-  shell: "lxc exec {{ container_name }} -- apt install -y cloud-init cloud-initramfs-dyn-netconf ssh"
+  shell: "lxc exec {{ container_name }} -- apt install -y cloud-init cloud-initramfs-dyn-netconf ssh sudo"
 
 - name: "stop container {{ container_name }}"
   lxd_container:
