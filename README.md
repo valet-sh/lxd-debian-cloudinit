@@ -12,7 +12,7 @@ The image is based on the default Debian Stretch amd64 image that you can find [
 
 we have added the following packages to the image:
 ```
-cloud-init cloud-initramfs-dyn-netconf ssh sudo
+cloud-init cloud-initramfs-dyn-netconf ssh sudo python-minimal
 ``` 
 
 
