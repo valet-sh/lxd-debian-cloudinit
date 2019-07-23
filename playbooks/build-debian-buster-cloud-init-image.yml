@@ -1,0 +1,31 @@
+---
+
+- hosts: localhost
+  gather_facts: true
+  vars:
+    base_image: "debian/buster/amd64"
+    container_name: "debian-cloudinit"
+    container_image_name: "debian-buster-cloudinit-image"
+    lxd_image_creation_date: "{{ ansible_date_time.epoch }}"
+    lxd_image_description: "Debian buster amd64 with cloud-init support"
+    target_os_release: "buster"
+    target_os: "debian"
+  roles:
+    - debian-cloudinit
+
+- hosts: valet-lxd-mirror
+  gather_facts: false
+  roles:
+    - python2
+
+- hosts: valet-lxd-mirror
+  gather_facts: true
+  become: true
+  vars:
+    valet_lxd_image_hash: "{{ hostvars.localhost.modified_image_stat_obj.stat.checksum }}"
+    valet_lxd_image_filename: "{{ hostvars.localhost.modified_image_stat_obj.stat.checksum }}.tar.gz"
+    valet_lxd_image_file: "{{ hostvars.localhost.tmp_image_dir_obj.path }}/{{ hostvars.localhost.modified_image_stat_obj.stat.checksum }}.tar.gz"
+    valet_lxd_image_identifier: debian-buster-cloud-init
+  roles:
+    - lxd-image-mirror
+
